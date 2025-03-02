@@ -8,8 +8,8 @@ pub struct UpdateArgs {
 }
 
 pub enum CounterInstruction {
-    Increment,
-    Decrement,
+    Increment(u32),
+    Decrement(u32),
     Update(UpdateArgs),
     Reset,
 }
@@ -20,8 +20,8 @@ impl CounterInstruction {
             .split_first()
             .ok_or(ProgramError::InvalidInstructionData)?;
         Ok(match &variant {
-            0 => Self::Increment,
-            1 => Self::Decrement,
+            0 => Self::Increment(u32::try_from_slice(rest).unwrap()),
+            1 => Self::Decrement(u32::try_from_slice(rest).unwrap()),
             2 => Self::Update(UpdateArgs::try_from_slice(rest).unwrap()),
             3 => Self::Reset,
             _ => return Err(ProgramError::InvalidInstructionData),
