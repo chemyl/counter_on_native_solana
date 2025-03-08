@@ -1,2 +1,2 @@
-# **native rust Solana program **
+# **native rust Solana program**
 Solana on-chain program example
