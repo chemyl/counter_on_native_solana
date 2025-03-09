@@ -1,52 +1,21 @@
-use crate::instructions::CounterInstruction;
-use borsh::BorshDeserialize;
-use borsh::BorshSerialize;
-// use borsh_derive::BorshDeserialize;
-use solana_program::{
-    account_info::{next_account_info, AccountInfo},
-    entrypoint,
-    entrypoint::ProgramResult,
-    msg,
-    pubkey::Pubkey,
-};
+use solana_program::entrypoint;
 
 pub mod instructions;
+pub mod processor;
+pub mod state;
 
-#[derive(Debug, BorshDeserialize, BorshSerialize)]
-pub struct CounterAccount {
-    pub counter: u32,
-}
+use processor::process_instruction;
 
 entrypoint!(process_instruction);
-pub fn process_instruction(
-    _program_id: &Pubkey,
-    accounts: &[AccountInfo],
-    instruction_data: &[u8],
-) -> ProgramResult {
-    msg!("program entry point");
-
-    let instruction: CounterInstruction = CounterInstruction::unpack(instruction_data)?;
-
-    let accounts_iter = &mut accounts.iter();
-    let account = next_account_info(accounts_iter)?;
-
-    let mut counter_account = CounterAccount::try_from_slice(&account.data.borrow())?;
-
-    match instruction {
-        CounterInstruction::Increment(args) => counter_account.counter += args,
-        CounterInstruction::Decrement(args) => counter_account.counter -= args,
-        CounterInstruction::Reset => counter_account.counter = 0,
-        CounterInstruction::Update(args) => counter_account.counter = args.value,
-    }
-
-    counter_account.serialize(&mut &mut account.data.borrow_mut()[..])?;
-    Ok(())
-}
 
 #[cfg(test)]
 mod test {
+    use crate::state::counter_account::CounterAccount;
+
     use super::*;
+    use borsh::BorshDeserialize;
     use solana_program::{clock::Epoch, pubkey::Pubkey};
+    use solana_sdk::account_info::AccountInfo;
 
     #[test]
     fn test_counter() {

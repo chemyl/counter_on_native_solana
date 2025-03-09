@@ -1,11 +1,7 @@
 use borsh::BorshDeserialize;
-use borsh_derive::BorshSerialize;
 use solana_program::program_error::ProgramError;
 
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-pub struct UpdateArgs {
-    pub value: u32,
-}
+use crate::state::update_account::UpdateArgs;
 
 pub enum CounterInstruction {
     Increment(u32),
